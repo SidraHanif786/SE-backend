@@ -1,5 +1,5 @@
 const status = require('http-status');
-const { Product } = require('../schemas/Product');  
+const Product  = require('../schemas/Product');  
 
 const SORT = {
   asc: 1,
@@ -8,7 +8,7 @@ const SORT = {
 
 const getProducts = async (req, res) => {
   try {
-    const { page = 1, pageSize, cid, sortBy = 'price', sort = 'asc' } = req.query;
+    const { page = 1, pageSize=10, cid, sortBy = 'price', sort = 'asc' } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(pageSize);
     const query = cid ? { category: cid } : {};
     const options = {
@@ -28,6 +28,7 @@ const getProducts = async (req, res) => {
 const createProduct = async (req, res) => {
   try {
     const data = req.body;
+
     const resp = await Product.create({ ...data});
     res.status(status.CREATED).send(resp);
   } catch (error) {

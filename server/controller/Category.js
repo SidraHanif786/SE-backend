@@ -54,9 +54,30 @@ const updateCategory = async (req, res) => {
   }
 };
 
+const createDummy = async (req, res) => {
+  try {
+    const categories = [
+      "Living Room Furniture",
+      "Bedroom Furniture",
+      "Dining Room Furniture",
+      "Home Office Furniture",
+      "Outdoor Furniture",
+    ];
+
+    const createdCategories = await Category.insertMany(
+      categories.map((title) => ({ title }))
+    );
+
+    res.status(status.CREATED).send(createdCategories);
+  } catch (error) {
+    res.status(status.BAD_REQUEST).send(error.message);
+  }
+};
+
 module.exports = {
   getCategories,
   createCategory,
   deleteCategory,
   updateCategory,
+  createDummy
 };
