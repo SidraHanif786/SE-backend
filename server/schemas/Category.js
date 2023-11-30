@@ -1,12 +1,13 @@
-const { Schema, Types, model } = require('mongoose');
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 const paginate = require('mongoose-paginate-v2');
 
 const categorySchema = new Schema({
-  title: Schema.Types.String,
+  title: { type: String, required: true },
 });
 
 categorySchema.plugin(paginate);
+const Category = mongoose.model('Category', categorySchema);
 
-const Category = model('Category', categorySchema);
-
+// Export the Category model
 module.exports = Category;
