@@ -5,7 +5,7 @@ const { authorizeUser, onlyAdmin } = require('../middleware/Auth');
 const orderRouter = express.Router();
 
 orderRouter.post('/create', authorizeUser, orderController.createOrder);
-orderRouter.get('/stats', orderController.totalNumerOfProductSold);
-orderRouter.get('/getAll', orderController.getAllOrders);
+orderRouter.get('/stats',authorizeUser, onlyAdmin, orderController.totalNumerOfProductSold);
+orderRouter.get('/getAll',authorizeUser,onlyAdmin, orderController.getAllOrders);
 
 module.exports = orderRouter;
