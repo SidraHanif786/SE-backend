@@ -5,7 +5,7 @@ const userSchema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
   password: { type: String, required: true },
-  isAdmin: Boolean,
+  isAdmin: { type: Boolean, default: false },
 });
 
 userSchema.plugin(paginate);

@@ -40,6 +40,11 @@ const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
     const resp = await Product.findById(id).populate('category');
+    if (!resp) {
+      return res
+        .status(status.NOT_FOUND)
+        .send({ message: 'Product with this id is not exist' });
+    }
     res.status(status.OK).send(resp);
   } catch (error) {
     res.status(status.BAD_REQUEST).send(error.message);
@@ -49,6 +54,13 @@ const getProductById = async (req, res) => {
 const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
+    const data = await Product.findById(id);
+    if (!data) {
+      return res
+        .status(status.NOT_FOUND)
+        .send({ message: 'Product with this id is not exist' });
+    }
+    //===========
     const resp = await Product.findByIdAndDelete(id);
     if (!resp) {
       res.status(status.NOT_FOUND).send('Already deleted!');

@@ -16,7 +16,13 @@ const createCategory = async (req, res) => {
     if (!title) {
       return res.status(status.BAD_REQUEST).send("Title is required");
     }
-
+    //========= handle dublicate
+    const data = await Category.findOne({ ...req.body });
+    if (data) {
+      return res
+        .status(status.BAD_REQUEST)
+        .send({ message: "Category with this name already exist" });
+    }
     const resp = await Category.create({ title });
 
     res.status(status.CREATED).send(resp);
@@ -28,6 +34,14 @@ const createCategory = async (req, res) => {
 const deleteCategory = async (req, res) => {
   try {
     const { id } = req.params;
+    //======== find category
+    const data = await Category.findById(id);
+    if (!data) {
+      return res
+        .status(status.NOT_FOUND)
+        .send({ message: 'Category with this id is not exist' });
+    }
+    //==== delete
     const resp = await Category.findByIdAndDelete(id);
     if (!resp) {
       res.status(status.NOT_FOUND).send("Already deleted");
@@ -79,5 +93,5 @@ module.exports = {
   createCategory,
   deleteCategory,
   updateCategory,
-  createDummy
+  createDummy,
 };
