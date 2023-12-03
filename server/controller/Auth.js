@@ -20,7 +20,7 @@ const signupUser = async (req, res) => {
       _id,
       isAdmin,
     });
-    res.status(status.CREATED).send({ _id, name, email, token });
+    res.status(status.CREATED).send({data:{ _id, name, email, token }});
   } catch (error) {
     res.status(status.BAD_REQUEST).send({ message: error.message });
   }
@@ -43,7 +43,7 @@ const loginUser = async (req, res) => {
         isAdmin: data.isAdmin,
       });
       const { email, _id, name } = data;
-      return res.status(status.OK).send({ _id, name, email, token });
+      return res.status(status.OK).send({data:{ _id, name, email, token }});
     } else {
       res
         .status(status.BAD_REQUEST)
@@ -61,7 +61,7 @@ const getAllUsers = async (req, res) => {
       {},
       { page: page || 1, limit: size || 10 }
     );
-    res.status(status.OK).send(resp);
+    res.status(status.OK).send({data:resp});
   } catch (error) {
     res.status(status.BAD_REQUEST).send({ message: error.message });
   }

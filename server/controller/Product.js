@@ -25,19 +25,19 @@ const getProducts = async (req, res) => {
     };
 
     const resp = await Product.paginate(query, options);
-    res.status(status.OK).send(resp);
+    res.status(status.OK).send({ data: resp });
   } catch (error) {
-    res.status(status.BAD_REQUEST).send(error.message);
+    res.status(status.BAD_REQUEST).send({ message: error.message });
   }
 };
 
 const createProduct = async (req, res) => {
   try {
     const data = req.body;
-    const resp = await Product.create({...data });
-    res.status(status.CREATED).send(resp);
+    const resp = await Product.create({ ...data });
+    res.status(status.CREATED).send({ data: resp });
   } catch (error) {
-    res.status(status.BAD_REQUEST).send(error.message);
+    res.status(status.BAD_REQUEST).send({ message: error.message });
   }
 };
 
@@ -50,9 +50,9 @@ const getProductById = async (req, res) => {
         .status(status.NOT_FOUND)
         .send({ message: "Product with this id is not exist" });
     }
-    res.status(status.OK).send(resp);
+    res.status(status.OK).send({ data: resp });
   } catch (error) {
-    res.status(status.BAD_REQUEST).send(error.message);
+    res.status(status.BAD_REQUEST).send({ message: error.message });
   }
 };
 
@@ -68,12 +68,12 @@ const deleteProduct = async (req, res) => {
     //===========
     const resp = await Product.findByIdAndDelete(id);
     if (!resp) {
-      res.status(status.NOT_FOUND).send("Already deleted!");
+      res.status(status.NOT_FOUND).send({ message: "Already deleted!" });
       return;
     }
-    res.status(status.OK).send("Successfully Deleted");
+    res.status(status.OK).send({ message: "Successfully Deleted" });
   } catch (error) {
-    res.status(status.BAD_REQUEST).send(error.message);
+    res.status(status.BAD_REQUEST).send({ message: error.message });
   }
 };
 
@@ -82,16 +82,15 @@ const updateProduct = async (req, res) => {
     const { id } = req.params;
     const data = req.body;
     const resp = await Product.findByIdAndUpdate(id, data);
-    console.log(resp);
     if (!resp) {
       res
         .status(status.NOT_FOUND)
-        .send("The product against given id not exists!");
+        .send({ message: "The product against given id not exists!" });
       return;
     }
-    res.status(status.OK).send({ ...data, id });
+    res.status(status.OK).send({ data: { ...data, id } });
   } catch (error) {
-    res.status(status.BAD_REQUEST).send(error.message);
+    res.status(status.BAD_REQUEST).send({ message: error.message });
   }
 };
 
