@@ -1,26 +1,30 @@
 const status = require("http-status");
 const User = require("../schemas/User");
-const createToken = require("../utils");
+const { createToken, encrypt, decrypt } = require("../utils");
 
 const signupUser = async (req, res) => {
   try {
+    const { body } = req;
+
     //=== check if email exists
-    const data = await User.findOne({ email: req.body.email });
+    const data = await User.findOne({ email: body.email });
     if (data) {
       return res
         .status(status.BAD_REQUEST)
         .send({ message: "User with this email already exist" });
     }
+    //==== before creating checks
+    body.isAdmin = false; //===== only one admin
+    body.password = await encrypt(body.password);
+
     //====== create record
-    req.body.isAdmin = false; //===== only one admin
-    const { name, email, _id, password, isAdmin } = await User.create(req.body);
+    const { name, email, _id, isAdmin } = await User.create(body);
     const token = createToken({
       email,
-      password,
       _id,
       isAdmin,
     });
-    res.status(status.CREATED).send({data:{ _id, name, email, token }});
+    res.status(status.CREATED).send({ data: { _id, name, email, token } });
   } catch (error) {
     res.status(status.BAD_REQUEST).send({ message: error.message });
   }
@@ -29,25 +33,27 @@ const signupUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+    //======== check if data is present
     const data = await User.findOne({ email });
     if (!data) {
       res
         .status(status.NOT_FOUND)
         .send({ message: "User not found. Create an account first" });
     }
-    if (data && data.password === password) {
+    //======= check password ========
+    const pass = await decrypt(password, data.password);
+    if (!pass) {
+      res.status(status.BAD_REQUEST).send({ message: "Password is incorrect" });
+    }
+    //====== create token
+    const _id = data._id;
+    if (data && pass) {
       const token = createToken({
-        email: data.email,
-        password: data.password,
-        _id: data._id,
+        email,
+        _id,
         isAdmin: data.isAdmin,
       });
-      const { email, _id, name } = data;
-      return res.status(status.OK).send({data:{ _id, name, email, token }});
-    } else {
-      res
-        .status(status.BAD_REQUEST)
-        .send({ message: "Email or Password is incorrect" });
+      return res.status(status.OK).send({ data: { _id, email, token } });
     }
   } catch (error) {
     res.status(status.BAD_REQUEST).send({ message: error.message });
@@ -61,7 +67,7 @@ const getAllUsers = async (req, res) => {
       {},
       { page: page || 1, limit: size || 10 }
     );
-    res.status(status.OK).send({data:resp});
+    res.status(status.OK).send({ data: resp });
   } catch (error) {
     res.status(status.BAD_REQUEST).send({ message: error.message });
   }
